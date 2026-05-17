@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jadwal Sesi Trading Forex — WIB</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c10;
+    --surface: #111318;
+    --border: #1e2230;
+    --text: #e8eaf0;
+    --muted: #5a6070;
+    --asia: #00c8a0;
+    --eropa: #4f9eff;
+    --london: #4f9eff;
+    --ny: #ff6f3c;
+    --sydney: #a78bfa;
+    --overlap: #ffd166;
+    --overlap-bg: rgba(255, 209, 102, 0.08);
+    --overlap-border: rgba(255, 209, 102, 0.35);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Mono', monospace;
+    min-height: 100vh;
+    padding: 40px 20px 60px;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  header h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(1.8rem, 5vw, 3rem);
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #e8eaf0 30%, #5a6070);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1.1;
+    margin-bottom: 10px;
+  }
+
+  header p {
+    color: var(--muted);
+    font-size: 0.8rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 24px;
+    justify-content: center;
+    margin-bottom: 36px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .dot.asia   { background: var(--asia); }
+  .dot.eropa  { background: var(--eropa); }
+  .dot.ny     { background: var(--ny); }
+  .dot.sydney { background: var(--sydney); }
+  .dot.overlap{ background: var(--overlap); }
+
+  /* ─── MAIN TABLE ─────────────────────────────────────────── */
+  .wrap {
+    max-width: 1100px;
+    margin: 0 auto;
+    overflow-x: auto;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.78rem;
+  }
+
+  thead th {
+    background: #13161f;
+    padding: 14px 16px;
+    text-align: left;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: rgba(255,255,255,0.025); }
+
+  /* overlap rows */
+  tbody tr.overlap-row {
+    background: var(--overlap-bg);
+    border-bottom: 1px solid var(--overlap-border);
+    border-top: 1px solid var(--overlap-border);
+  }
+  tbody tr.overlap-row:hover { background: rgba(255,209,102,0.13); }
+
+  td {
+    padding: 13px 16px;
+    vertical-align: middle;
+    line-height: 1.45;
+  }
+
+  .time-col {
+    font-weight: 500;
+    color: #c8cad8;
+    white-space: nowrap;
+    font-size: 0.82rem;
+  }
+
+  .sesi-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
+    padding: 4px 10px;
+    border-radius: 6px;
+  }
+
+  .badge-asia   { color: var(--asia);   background: rgba(0,200,160,0.1);  border: 1px solid rgba(0,200,160,0.25); }
+  .badge-eropa  { color: var(--eropa);  background: rgba(79,158,255,0.1); border: 1px solid rgba(79,158,255,0.25); }
+  .badge-ny     { color: var(--ny);     background: rgba(255,111,60,0.1); border: 1px solid rgba(255,111,60,0.25); }
+  .badge-sydney { color: var(--sydney); background: rgba(167,139,250,0.1);border: 1px solid rgba(167,139,250,0.25); }
+  .badge-overlap{
+    color: var(--overlap);
+    background: rgba(255,209,102,0.12);
+    border: 1px solid rgba(255,209,102,0.4);
+    animation: pulse 2.5s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%,100% { box-shadow: 0 0 0 0 rgba(255,209,102,0); }
+    50%      { box-shadow: 0 0 8px 2px rgba(255,209,102,0.18); }
+  }
+
+  .pairs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+
+  .pair-tag {
+    font-size: 0.68rem;
+    padding: 2px 7px;
+    border-radius: 4px;
+    letter-spacing: 0.05em;
+    border: 1px solid var(--border);
+    color: #9095a8;
+    white-space: nowrap;
+  }
+
+  .pair-hot {
+    color: var(--text);
+    border-color: rgba(255,255,255,0.18);
+    background: rgba(255,255,255,0.04);
+  }
+
+  .aktivitas {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .bar-track {
+    width: 80px;
+    height: 6px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 99px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 99px;
+  }
+
+  .level-label {
+    font-size: 0.67rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+  }
+
+  .note-col {
+    color: var(--muted);
+    font-size: 0.72rem;
+    line-height: 1.5;
+    max-width: 220px;
+  }
+
+  .star { color: var(--overlap); margin-right: 2px; }
+
+  /* ─── OVERLAP SECTION LABEL ──────────────────────────────── */
+  .section-label td {
+    background: #0e1018;
+    padding: 8px 16px;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ─── TIMELINE STRIP ──────────────────────────────────────── */
+  .timeline-wrap {
+    max-width: 1100px;
+    margin: 36px auto 0;
+    padding: 28px 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+  }
+
+  .tl-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+
+  .tl-grid {
+    display: grid;
+    grid-template-columns: 90px 1fr;
+    gap: 10px 12px;
+    align-items: center;
+  }
+
+  .tl-name {
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-align: right;
+    letter-spacing: 0.06em;
+  }
+
+  .tl-bar-row {
+    position: relative;
+    height: 22px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .tl-seg {
+    position: absolute;
+    top: 0; bottom: 0;
+    border-radius: 3px;
+    opacity: 0.85;
+  }
+
+  /* 24-hour axis — WIB 04:00..24:00+ mapped to 0..100% */
+  /* total span = 24h, start anchor = 04:00 WIB */
+
+  .tl-hours {
+    grid-column: 2;
+    display: flex;
+    justify-content: space-between;
+    padding-top: 6px;
+  }
+
+  .tl-h {
+    font-size: 0.6rem;
+    color: var(--muted);
+    width: 1px;
+    white-space: nowrap;
+    position: relative;
+  }
+
+  .tl-h::before {
+    content: '';
+    display: block;
+    width: 1px;
+    height: 6px;
+    background: var(--border);
+    margin-bottom: 4px;
+  }
+
+  footer {
+    text-align: center;
+    margin-top: 36px;
+    color: var(--muted);
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    line-height: 1.8;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Jadwal Sesi Trading Forex</h1>
+  <p>Zona Waktu Indonesia Barat (WIB / UTC+7) &nbsp;·&nbsp; Pasar Spot Global</p>
+</header>
+
+<div class="legend">
+  <span class="legend-item"><span class="dot sydney"></span> Sydney / Pasifik</span>
+  <span class="legend-item"><span class="dot asia"></span> Asia (Tokyo + Singapura)</span>
+  <span class="legend-item"><span class="dot eropa"></span> Eropa / London</span>
+  <span class="legend-item"><span class="dot ny"></span> New York</span>
+  <span class="legend-item"><span class="dot overlap"></span> Overlap — Sangat Aktif</span>
+</div>
+
+<div class="wrap">
+<table>
+<thead>
+  <tr>
+    <th>Waktu WIB</th>
+    <th>Sesi</th>
+    <th>Pasangan Utama (Terbaik)</th>
+    <th>Aktivitas</th>
+    <th>Catatan</th>
+  </tr>
+</thead>
+<tbody>
+
+  <!-- PRE-MARKET -->
+  <tr class="section-label"><td colspan="5">— Pra-Pasar —</td></tr>
+
+  <tr>
+    <td class="time-col">04:00 – 07:00</td>
+    <td><span class="sesi-badge badge-sydney">🌏 Sydney</span></td>
+    <td><div class="pairs">
+      <span class="pair-tag pair-hot">AUD/USD</span>
+      <span class="pair-tag pair-hot">NZD/USD</span>
+      <span class="pair-tag">AUD/JPY</span>
+      <span class="pair-tag">NZD/JPY</span>
+    </div></td>
+    <td><div class="aktivitas">
+      <div class="bar-track"><div class="bar-fill" style="width:30%;background:var(--sydney)"></div></div>
+      <span class="level-label" style="color:var(--sydney)">Rendah</span>
+    </div></td>
+    <td class="note-col">Likuiditas tipis. Spread lebar. Cocok analisis & persiapan rencana trading.</td>
+  </tr>
+
+  <!-- SESI ASIA -->
+  <tr class="section-label"><td colspan="5">— Sesi Asia —</td></tr>
+
+  <tr>
+    <td class="time-col">07:00 – 09:00</td>
+    <td><span class="sesi-badge badge-asia">🗾 Tokyo Buka</span></td>
+    <td><div class="pairs">
+      <span class="pair-tag pair-hot">USD/JPY</span>
+      <span class="pair-tag pair-hot">EUR/JPY</span>
+      <span class="pair-tag pair-hot">AUD/JPY</span>
+      <span class="pair-tag">GBP/JPY</span>
+      <span class="pair-tag">USD/SGD</span>
+    </div></td>
+    <td><div class="aktivitas">
+      <div class="bar-track"><div class="bar-fill" style="width:55%;background:var(--asia)"></div></div>
+      <span class="level-label" style="color:var(--asia)">Sedang</span>
+    </div></td>
+    <td class="note-col">Volatilitas JPY meningkat. Data ekonomi Jepang sering rilis di sini.</td>
+  </tr>
+
+  <tr>
+    <td class="time-col">09:00 – 15:00</td>
+    <td><span class="sesi-badge badge-asia">🌏 Asia Penuh</span></td>
+    <td><div class="pairs">
+      <span class="pair-tag pair-hot">USD/JPY</span>
+      <span class="pair-tag pair-hot">AUD/USD</span>
+      <span class="pair-tag pair-hot">USD/CNH</span>
+      <span class="pair-tag">USD/SGD</span>
+      <span class="pair-tag">AUD/NZD</span>
+      <span class="pair-tag">EUR/JPY</span>
+    </div></td>
+    <td><div class="aktivitas">
+      <div class="bar-track"><div class="bar-fill" style="width:60%;background:var(--asia)"></div></div>
+      <span class="level-label" style="color:var(--asia)">Sedang</span>
+    </div></td>
+    <td class="note-col">Range pasar relatif sempit. Bagus untuk strategi range-bound & scalping JPY pairs.</td>
+  </tr>
+
+  <!-- OVERLAP ASIA–EROPA -->
+  <tr class="section-label"><td colspan="5">— Overlap —</td></tr>
+
+  <tr class="overlap-row">
+    <td class="time-col">⚡ 15:00 – 16:00</td>
+    <td><span class="sesi-badge badge-overlap">🔥 Asia ↔ London</span></td>
+    <td><div class="pairs">
+      <span class="pair-tag pair-hot">EUR/USD</span>
+      <span class="pair-tag pair-hot">GBP/USD</span>
+      <span class="pair-tag pair-hot">USD/JPY</span>
+      <span class="pair-tag pair-hot">EUR/JPY</span>
+      <span class="pair-tag pair-hot">GBP/JPY</span>
+    </div></td>
+    <td><div class="aktivitas">
+      <div class="bar-track"><div class="bar-fill" style="width:80%;background:var(--overlap)"></div></div>
+      <span class="level-label" style="color:var(--overlap)">Tinggi ★</span>
+    </div></td>
+    <td class="note-col"><span class="star">★</span>Transisi Asia→London. Breakout sering terjadi. Spread mulai menyempit drastis.</td>
+  </tr>
+
+  <!-- SESI EROPA / LONDON -->
+  <tr class="section-label"><td colspan="5">— Sesi Eropa / London —</td></tr>
+
+  <tr>
+    <td class="time-col">16:00 – 19:00</td>
+    <td><span class="sesi-badge badge-eropa">🏛️ London Buka</span></td>
+    <td><div class="pairs">
+      <span class="pair-tag pair-hot">EUR/USD</span>
+      <span class="pair-tag pair-hot">GBP/USD</span>
+      <span class="pair-tag pair-hot">EUR/GBP</span>
+      <span class="pair-tag pair-hot">USD/CHF</span>
+      <span class="pair-tag">EUR/CHF</span>
+      <span class="pair-tag">GBP/JPY</span>
+    </div></td>
+    <td><div class="aktivitas">
+      <div class="bar-track"><div class="bar-fill" style="width:88%;background:var(--eropa)"></div></div>
+      <span class="level-label" style="color:var(--eropa)">Sangat Aktif</span>
+    </div></td>
+    <td class="note-col">Volume terbesar kedua. Spread paling sempit untuk EUR & GBP. Rilis data zona Euro.</td>
+  </tr>
+
+  <!-- OVERLAP LONDON–NEW YORK (PUNCAK) -->
+  <tr class="overlap-row">
+    <td class="time-col">⚡ 19:00 – 22:00</td>
+    <td><span class="sesi-badge badge-overlap">🔥🔥 London ↔ NY</span></td>
+    <td><div class="pairs">
+      <span class="pair-tag pair-hot">EUR/USD</span>
+      <span class="pair-tag pair-hot">GBP/USD</span>
+      <span class="pair-tag pair-hot">USD/JPY</span>
+      <span class="pair-tag pair-hot">USD/CHF</span>
+      <span class="pair-tag pair-hot">AUD/USD</span>
+      <span class="pair-tag pair-hot">USD/CAD</span>
+      <span class="pair-tag pair-hot">GBP/JPY</span>
+    </div></td>
+    <td><div class="aktivitas">
+      <div class="bar-track"><div class="bar-fill" style="width:100%;background:linear-gradient(90deg,var(--eropa),var(--overlap),var(--ny))"></div></div>
+      <span class="level-label" style="color:var(--overlap)">PUNCAK ★★★</span>
+    </div></td>
+    <td class="note-col"><span class="star">★★★</span>Periode paling aktif sedunia. Volume & volatilitas tertinggi. NFP & data AS rilis di sini. Spread tersempit.</td>
+  </tr>
+
+  <!-- SESI NEW YORK -->
+  <tr class="section-label"><td colspan="5">— Sesi New York —</td></tr>
+
+  <tr>
+    <td class="time-col">19:00 – 22:00</td>
+    <td><span class="sesi-badge badge-ny">🗽 New York (+ London)</span></td>
+    <td><div class="pairs">
+      <span class="pair-tag pair-hot">EUR/USD</span>
+      <span class="pair-tag pair-hot">GBP/USD</span>
+      <span class="pair-tag pair-hot">USD/CAD</span>
+      <span class="pair-tag pair-hot">USD/JPY</span>
+      <span class="pair-tag">XAU/USD</span>
+      <span class="pair-tag">WTI/USD</span>
+    </div></td>
+    <td><div class="aktivitas">
+      <div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--ny)"></div></div>
+      <span class="level-label" style="color:var(--ny)">Maks</span>
+    </div></td>
+    <td class="note-col">Wall Street buka. Korelasi tinggi dengan indeks saham AS. CAD aktif karena korelasi minyak.</td>
+  </tr>
+
+  <tr>
+    <td class="time-col">22:00 – 02:00</td>
+    <td><span class="sesi-badge badge-ny">🗽 New York (Akhir)</span></td>
+    <td><div class="pairs">
+      <span class="pair-tag pair-hot">USD/JPY</span>
+      <span class="pair-tag pair-hot">EUR/USD</span>
+      <span class="pair-tag">GBP/USD</span>
+      <span class="pair-tag">XAU/USD</span>
+      <span class="pair-tag">USD/CAD</span>
+    </div></td>
+    <td><div class="aktivitas">
+      <div class="bar-track"><div class="bar-fill" style="width:65%;background:var(--ny)"></div></div>
+      <span class="level-label" style="color:var(--ny)">Aktif</span>
+    </div></td>
+    <td class="note-col">London tutup pukul 24:00 WIB. Volume mulai turun setelahnya. Data AS malam masih bisa gerakkan pasar.</td>
+  </tr>
+
+  <!-- DEAD ZONE -->
+  <tr class="section-label"><td colspan="5">— Dead Zone —</td></tr>
+
+  <tr>
+    <td class="time-col">02:00 – 04:00</td>
+    <td><span class="sesi-badge" style="color:var(--muted);background:rgba(255,255,255,0.04);border:1px solid var(--border)">💤 Dead Zone</span></td>
+    <td><div class="pairs">
+      <span class="pair-tag">AUD/USD</span>
+      <span class="pair-tag">NZD/USD</span>
+    </div></td>
+    <td><div class="aktivitas">
+      <div class="bar-track"><div class="bar-fill" style="width:10%;background:var(--muted)"></div></div>
+      <span class="level-label" style="color:var(--muted)">Minimal</span>
+    </div></td>
+    <td class="note-col">Likuiditas sangat rendah. Spread melebar. Hindari trading kecuali scalper AUD/NZD berpengalaman.</td>
+  </tr>
+
+</tbody>
+</table>
+</div>
+
+<!-- TIMELINE VISUAL -->
+<div class="timeline-wrap">
+  <p class="tl-title">Visualisasi Timeline 24 Jam — Waktu WIB</p>
+  <div class="tl-grid">
+
+    <span class="tl-name" style="color:var(--sydney)">Sydney</span>
+    <div class="tl-bar-row">
+      <!-- 04:00–09:00 = 0–21% of 24h -->
+      <div class="tl-seg" style="left:0%;width:20.8%;background:var(--sydney);opacity:0.7"></div>
+      <!-- 22:00–24:00 = 75–100% (wrap) not shown, simplified -->
+    </div>
+
+    <span class="tl-name" style="color:var(--asia)">Tokyo</span>
+    <div class="tl-bar-row">
+      <!-- 07:00–16:00 = 12.5%–50% -->
+      <div class="tl-seg" style="left:12.5%;width:37.5%;background:var(--asia);opacity:0.75"></div>
+    </div>
+
+    <span class="tl-name" style="color:var(--eropa)">London</span>
+    <div class="tl-bar-row">
+      <!-- 15:00–24:00 = 45.8%–83.3% -->
+      <div class="tl-seg" style="left:45.8%;width:37.5%;background:var(--eropa);opacity:0.75"></div>
+    </div>
+
+    <span class="tl-name" style="color:var(--ny)">New York</span>
+    <div class="tl-bar-row">
+      <!-- 19:00–02:00 → 62.5%..100% -->
+      <div class="tl-seg" style="left:62.5%;width:37.5%;background:var(--ny);opacity:0.75"></div>
+    </div>
+
+    <span class="tl-name" style="color:var(--overlap)">Overlap</span>
+    <div class="tl-bar-row">
+      <!-- Asia↔London 15:00–16:00 = 45.8%–50% -->
+      <div class="tl-seg" style="left:45.8%;width:4.2%;background:var(--overlap)"></div>
+      <!-- London↔NY 19:00–22:00 = 62.5%–75% -->
+      <div class="tl-seg" style="left:62.5%;width:12.5%;background:var(--overlap)"></div>
+    </div>
+
+    <!-- Hour labels -->
+    <span></span>
+    <div class="tl-hours">
+      <span class="tl-h">04</span>
+      <span class="tl-h">07</span>
+      <span class="tl-h">09</span>
+      <span class="tl-h">12</span>
+      <span class="tl-h">15</span>
+      <span class="tl-h">16</span>
+      <span class="tl-h">19</span>
+      <span class="tl-h">22</span>
+      <span class="tl-h">24+</span>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  Semua waktu dalam <strong>WIB (UTC+7)</strong> &nbsp;·&nbsp;
+  Jam trading dapat bergeser ±1 jam saat DST (Eropa/AS) aktif &nbsp;·&nbsp;
+  Pasangan ditandai <strong>tebal</strong> = likuiditas & volatilitas tertinggi di sesi tersebut
+</footer>
+
+<script>
+  function notifyHeight() {
+    var h = Math.max(
+      document.body.scrollHeight,
+      document.body.offsetHeight,
+      document.documentElement.scrollHeight,
+      document.documentElement.offsetHeight
+    );
+    document.documentElement.style.minHeight = h + 'px';
+    document.body.style.minHeight = h + 'px';
+    window.parent.postMessage({ height: h }, '*');
+  }
+  notifyHeight();
+  window.addEventListener('load', notifyHeight);
+  setTimeout(notifyHeight, 500);
+  setTimeout(notifyHeight, 1500);
+</script>
+</body>
+</html>

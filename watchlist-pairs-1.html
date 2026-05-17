@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Watchlist Pairs — Persiapan Sesi Puncak</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:       #0f1117;
+    --surface:  #161820;
+    --card:     #1d2030;
+    --border:   #252840;
+    --text:     #e2e6f8;
+    --muted:    #525878;
+    --dim:      #2e3250;
+
+    --aud:   #f0a500;
+    --jpy:   #00c49a;
+    --cad:   #5ba8ff;
+    --eur:   #c084f5;
+    --gbp:   #ff7c75;
+    --peak:  #ff6b2b;
+    --gold:  #ffd166;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; }
+
+  body { padding: 56px 60px 72px; position: relative; overflow-x: hidden; }
+
+  /* Noise texture overlay */
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0; opacity: 0.4;
+  }
+
+  /* Subtle grid */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.012) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.012) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none; z-index: 0;
+  }
+
+  .wrap { position: relative; z-index: 1; width: 100%; }
+
+  /* ── HEADER ───────────────────────── */
+  .header { margin-bottom: 72px; position: relative; }
+
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem; letter-spacing: 0.25em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 16px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .eyebrow::before { content: ''; width: 32px; height: 1px; background: var(--peak); }
+  .eyebrow::after  { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3.5rem, 7vw, 6.5rem);
+    letter-spacing: 0.03em; line-height: 0.88;
+    color: var(--text);
+  }
+  .header h1 .accent { color: var(--gold); }
+
+  .header-sub {
+    margin-top: 20px;
+    font-size: clamp(1rem, 1.5vw, 1.2rem);
+    color: var(--muted); line-height: 1.7; font-weight: 300;
+    max-width: 640px;
+  }
+
+  /* Decorative corner number */
+  .corner-num {
+    position: absolute; top: 0; right: 0;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(5rem, 12vw, 10rem);
+    color: rgba(255,255,255,0.025);
+    line-height: 1; letter-spacing: -0.02em;
+    pointer-events: none;
+  }
+
+  /* ── PRINSIP BOX ────────────────── */
+  .principle {
+    background: linear-gradient(135deg, rgba(255,107,43,0.1), rgba(255,107,43,0.03));
+    border: 1px solid rgba(255,107,43,0.25);
+    border-left: 4px solid var(--peak);
+    border-radius: 14px;
+    padding: 24px 30px;
+    margin-bottom: 64px;
+    display: flex; align-items: flex-start; gap: 18px;
+  }
+  .principle-icon { font-size: 2rem; flex-shrink: 0; line-height: 1; margin-top: 2px; }
+  .principle-text { font-size: clamp(1rem, 1.5vw, 1.18rem); line-height: 1.75; color: #b8b0c8; }
+  .principle-text strong { color: var(--text); font-weight: 600; }
+
+  /* ── SECTION LABEL ──────────────── */
+  .section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 28px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* ── TIMELINE BLOCKS ────────────── */
+  .timeline { display: flex; flex-direction: column; gap: 0; margin-bottom: 72px; }
+
+  .tl-item {
+    display: grid;
+    grid-template-columns: 200px 4px 1fr;
+    gap: 0 32px;
+    animation: fadeUp 0.5s ease both;
+  }
+  .tl-item:nth-child(1){animation-delay:0.06s}
+  .tl-item:nth-child(2){animation-delay:0.14s}
+  .tl-item:nth-child(3){animation-delay:0.22s}
+  .tl-item:nth-child(4){animation-delay:0.30s}
+
+  @keyframes fadeUp {
+    from { opacity:0; transform:translateY(16px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+
+  /* Time column */
+  .tl-time {
+    padding: 28px 0 56px;
+    display: flex; flex-direction: column;
+    align-items: flex-end; justify-content: flex-start;
+    gap: 8px;
+  }
+
+  .time-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(1.8rem, 3vw, 2.8rem);
+    letter-spacing: 0.04em; line-height: 1;
+    color: var(--text);
+  }
+
+  .time-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem; letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 3px 10px; border-radius: 4px;
+    display: inline-block;
+  }
+
+  /* Connector line */
+  .tl-line-wrap {
+    display: flex; flex-direction: column; align-items: center;
+    padding-top: 36px;
+  }
+
+  .tl-dot {
+    width: 14px; height: 14px; border-radius: 50%;
+    border: 2px solid; flex-shrink: 0;
+    position: relative; z-index: 1;
+    box-shadow: 0 0 0 4px rgba(255,255,255,0.03);
+  }
+
+  .tl-vline {
+    flex: 1; width: 2px; background: var(--dim);
+    margin-top: 8px; min-height: 40px;
+  }
+
+  /* Card column */
+  .tl-card-wrap { padding: 20px 0 48px; }
+
+  .tl-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 28px 32px;
+    position: relative; overflow: hidden;
+  }
+  .tl-card::before {
+    content: ''; position: absolute;
+    left: 0; top: 0; bottom: 0; width: 4px;
+    border-radius: 18px 0 0 18px;
+  }
+
+  .tl-card-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(1.5rem, 2.4vw, 2.2rem);
+    letter-spacing: 0.05em; line-height: 1;
+    margin-bottom: 10px;
+  }
+
+  .tl-card-desc {
+    font-size: clamp(0.92rem, 1.35vw, 1.08rem);
+    color: #8892ae; line-height: 1.72;
+    margin-bottom: 20px;
+  }
+  .tl-card-desc strong { color: var(--text); font-weight: 600; }
+
+  /* Pairs chips */
+  .pairs { display: flex; flex-wrap: wrap; gap: 10px; }
+
+  .pair-chip {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(0.82rem, 1.1vw, 0.95rem);
+    font-weight: 600; letter-spacing: 0.06em;
+    padding: 7px 16px; border-radius: 8px;
+    border: 1px solid; display: flex; align-items: center; gap: 8px;
+  }
+
+  .pair-chip .chip-dot {
+    width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+  }
+
+  /* Insight tag */
+  .insight {
+    margin-top: 18px;
+    display: flex; align-items: flex-start; gap: 12px;
+    font-size: clamp(0.88rem, 1.25vw, 1rem);
+    color: var(--muted); line-height: 1.65;
+    background: rgba(255,255,255,0.025);
+    border-radius: 10px; padding: 14px 18px;
+    border: 1px solid var(--dim);
+  }
+  .insight-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+  .insight strong { color: var(--text); font-weight: 500; }
+
+  /* ── COLOR VARIANTS ─────────────── */
+  /* Slot 1 — AUD (amber) */
+  .v-aud .tl-dot   { border-color: var(--aud); background: rgba(240,165,0,0.15); box-shadow: 0 0 12px rgba(240,165,0,0.25); }
+  .v-aud .tl-card::before { background: var(--aud); }
+  .v-aud .tl-card-title   { color: var(--aud); }
+  .v-aud .time-label { color: var(--aud); background: rgba(240,165,0,0.1); border: 1px solid rgba(240,165,0,0.2); }
+  .v-aud .time-val   { color: var(--aud); }
+
+  /* Slot 2 — JPY (teal) */
+  .v-jpy .tl-dot   { border-color: var(--jpy); background: rgba(0,196,154,0.15); box-shadow: 0 0 12px rgba(0,196,154,0.2); }
+  .v-jpy .tl-card::before { background: var(--jpy); }
+  .v-jpy .tl-card-title   { color: var(--jpy); }
+  .v-jpy .time-label { color: var(--jpy); background: rgba(0,196,154,0.1); border: 1px solid rgba(0,196,154,0.2); }
+  .v-jpy .time-val   { color: var(--jpy); }
+
+  /* Slot 3 — London prep (blue + purple + red) */
+  .v-ldn .tl-dot   { border-color: var(--cad); background: rgba(91,168,255,0.15); box-shadow: 0 0 12px rgba(91,168,255,0.2); }
+  .v-ldn .tl-card::before { background: linear-gradient(180deg, var(--eur), var(--gbp), var(--cad)); }
+  .v-ldn .tl-card-title   { color: var(--cad); }
+  .v-ldn .time-label { color: var(--cad); background: rgba(91,168,255,0.1); border: 1px solid rgba(91,168,255,0.2); }
+  .v-ldn .time-val   { color: var(--cad); }
+
+  /* Slot 4 — Peak (orange glow) */
+  .v-peak .tl-dot  { border-color: var(--peak); background: rgba(255,107,43,0.2); animation: dotglow 2.5s ease-in-out infinite; }
+  @keyframes dotglow { 0%,100%{ box-shadow: 0 0 8px rgba(255,107,43,0.3); } 50%{ box-shadow: 0 0 24px rgba(255,107,43,0.7); } }
+  .v-peak .tl-card { border-color: rgba(255,107,43,0.28); background: rgba(255,107,43,0.04); }
+  .v-peak .tl-card::before { background: var(--peak); }
+  .v-peak .tl-card-title   { color: var(--peak); }
+  .v-peak .time-label { color: var(--peak); background: rgba(255,107,43,0.12); border: 1px solid rgba(255,107,43,0.3); }
+  .v-peak .time-val  { color: var(--peak); }
+
+  /* pair chip colors */
+  .c-aud  { color: var(--aud);  background: rgba(240,165,0,0.09);  border-color: rgba(240,165,0,0.25);  }
+  .c-aud  .chip-dot { background: var(--aud); }
+  .c-jpy  { color: var(--jpy);  background: rgba(0,196,154,0.09);  border-color: rgba(0,196,154,0.25);  }
+  .c-jpy  .chip-dot { background: var(--jpy); }
+  .c-eur  { color: var(--eur);  background: rgba(192,132,245,0.09);border-color: rgba(192,132,245,0.25);}
+  .c-eur  .chip-dot { background: var(--eur); }
+  .c-gbp  { color: var(--gbp);  background: rgba(255,124,117,0.09);border-color: rgba(255,124,117,0.25);}
+  .c-gbp  .chip-dot { background: var(--gbp); }
+  .c-cad  { color: var(--cad);  background: rgba(91,168,255,0.09); border-color: rgba(91,168,255,0.25); }
+  .c-cad  .chip-dot { background: var(--cad); }
+  .c-peak { color: var(--peak); background: rgba(255,107,43,0.09); border-color: rgba(255,107,43,0.25); }
+  .c-peak .chip-dot { background: var(--peak); }
+  .c-gold { color: var(--gold); background: rgba(255,209,102,0.09);border-color: rgba(255,209,102,0.25);}
+  .c-gold .chip-dot { background: var(--gold); }
+
+  /* ── SUMMARY TABLE ──────────────── */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin-bottom: 56px;
+  }
+
+  .sum-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 24px 28px;
+    position: relative; overflow: hidden;
+    animation: fadeUp 0.5s ease both;
+  }
+  .sum-card:nth-child(1){animation-delay:0.08s}
+  .sum-card:nth-child(2){animation-delay:0.16s}
+  .sum-card:nth-child(3){animation-delay:0.24s}
+  .sum-card:nth-child(4){animation-delay:0.32s}
+  .sum-card:nth-child(5){animation-delay:0.40s}
+
+  .sum-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0;
+    height: 3px; border-radius: 16px 16px 0 0;
+  }
+
+  .sum-pair {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(1.8rem, 3vw, 2.6rem);
+    letter-spacing: 0.04em; line-height: 1;
+    margin-bottom: 10px;
+  }
+
+  .sum-why {
+    font-size: clamp(0.88rem, 1.2vw, 1rem);
+    color: #8892ae; line-height: 1.65;
+  }
+  .sum-why strong { color: var(--text); font-weight: 600; }
+
+  .sum-tag {
+    margin-top: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem; letter-spacing: 0.12em;
+    text-transform: uppercase; padding: 3px 10px;
+    border-radius: 4px; display: inline-block;
+  }
+
+  /* sum card colors */
+  .sc-aud::before { background: var(--aud); }
+  .sc-aud .sum-pair { color: var(--aud); }
+  .sc-aud .sum-tag { color: var(--aud); background: rgba(240,165,0,0.1); border: 1px solid rgba(240,165,0,0.2); }
+
+  .sc-jpy::before { background: var(--jpy); }
+  .sc-jpy .sum-pair { color: var(--jpy); }
+  .sc-jpy .sum-tag { color: var(--jpy); background: rgba(0,196,154,0.1); border: 1px solid rgba(0,196,154,0.2); }
+
+  .sc-cad::before { background: var(--cad); }
+  .sc-cad .sum-pair { color: var(--cad); }
+  .sc-cad .sum-tag { color: var(--cad); background: rgba(91,168,255,0.1); border: 1px solid rgba(91,168,255,0.2); }
+
+  .sc-eur::before { background: var(--eur); }
+  .sc-eur .sum-pair { color: var(--eur); }
+  .sc-eur .sum-tag { color: var(--eur); background: rgba(192,132,245,0.1); border: 1px solid rgba(192,132,245,0.2); }
+
+  .sc-gbp::before { background: var(--gbp); }
+  .sc-gbp .sum-pair { color: var(--gbp); }
+  .sc-gbp .sum-tag { color: var(--gbp); background: rgba(255,124,117,0.1); border: 1px solid rgba(255,124,117,0.2); }
+
+  /* ── KORELASI WARNING ───────────── */
+  .warning-box {
+    background: rgba(255,209,102,0.06);
+    border: 1px solid rgba(255,209,102,0.25);
+    border-radius: 16px; padding: 28px 32px;
+    display: flex; align-items: flex-start; gap: 20px;
+    margin-bottom: 56px;
+  }
+  .warning-icon { font-size: 2.4rem; flex-shrink: 0; }
+  .warning-body {}
+  .warning-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(1.4rem, 2vw, 1.9rem);
+    color: var(--gold); letter-spacing: 0.05em;
+    margin-bottom: 10px;
+  }
+  .warning-text {
+    font-size: clamp(0.95rem, 1.35vw, 1.1rem);
+    color: #b8aa7a; line-height: 1.75;
+  }
+  .warning-text strong { color: var(--gold); font-weight: 600; }
+
+  /* ── FOOTER ─────────────────────── */
+  .foot {
+    padding-top: 28px; border-top: 1px solid var(--border);
+    text-align: center;
+    font-size: clamp(0.82rem, 1.1vw, 0.95rem);
+    color: var(--muted); letter-spacing: 0.06em; line-height: 2.2;
+  }
+
+  .mk {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85em; font-weight: 600;
+    padding: 2px 8px; border-radius: 4px; display: inline;
+  }
+  .mk-aud { color: var(--aud); background: rgba(240,165,0,0.1); }
+  .mk-jpy { color: var(--jpy); background: rgba(0,196,154,0.1); }
+  .mk-cad { color: var(--cad); background: rgba(91,168,255,0.1); }
+  .mk-eur { color: var(--eur); background: rgba(192,132,245,0.1); }
+  .mk-gbp { color: var(--gbp); background: rgba(255,124,117,0.1); }
+  .mk-peak{ color: var(--peak);background: rgba(255,107,43,0.1); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="eyebrow">Swing Trading D1 · Watchlist Persiapan</div>
+    <h1>PAIRS YANG<br>PERLU <span class="accent">DIPERHATIKAN</span></h1>
+    <p class="header-sub">Panduan pairs mana yang dipantau di setiap fase waktu — dari pagi hingga sesi puncak tiba — agar Anda datang ke overlap dengan skenario yang sudah matang.</p>
+    <div class="corner-num">5</div>
+  </div>
+
+  <!-- PRINSIP UTAMA -->
+  <div class="principle">
+    <span class="principle-icon">🎯</span>
+    <p class="principle-text">
+      <strong>Prinsip utama:</strong> Jangan memantau semua pairs sekaligus di waktu yang sama.
+      Gunakan pagi dan sore untuk <strong>menyaring</strong> — dari 5 pairs watchlist, biasanya hanya
+      1 atau 2 yang benar-benar mendekati zona S&amp;R D1 di hari yang sama.
+      <strong>Fokus hanya ke yang paling dekat dengan zona, abaikan sisanya.</strong>
+    </p>
+  </div>
+
+  <!-- TIMELINE SECTION -->
+  <div class="section-label">Jadwal Monitoring Harian</div>
+
+  <div class="timeline">
+
+    <!-- 05:00 AUD/USD -->
+    <div class="tl-item v-aud">
+      <div class="tl-time">
+        <div class="time-val">05:00<br>07:00</div>
+        <div class="time-label">Sesi Sydney</div>
+      </div>
+      <div class="tl-line-wrap">
+        <div class="tl-dot"></div>
+        <div class="tl-vline"></div>
+      </div>
+      <div class="tl-card-wrap">
+        <div class="tl-card">
+          <div class="tl-card-title">AUD/USD — Baca Arah Awal</div>
+          <p class="tl-card-desc">
+            Harga pembukaan Sydney sudah memberi gambaran awal arah hari itu.
+            Jika D1 menunjukkan harga mendekati S&amp;R, <strong>struktur M30 sudah mulai terbentuk lebih awal</strong>
+            dibanding pairs Eropa — Anda punya lebih banyak waktu membaca konteksnya.
+          </p>
+          <div class="pairs">
+            <div class="pair-chip c-aud"><span class="chip-dot"></span>AUD/USD</div>
+          </div>
+          <div class="insight">
+            <span class="insight-icon">💡</span>
+            <span>Keunggulan AUD — persiapan lebih panjang. Jika setup terlihat, Anda sudah siap 12 jam sebelum overlap.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 07:00 USD/JPY -->
+    <div class="tl-item v-jpy">
+      <div class="tl-time">
+        <div class="time-val">07:00<br>09:00</div>
+        <div class="time-label">Tokyo Buka</div>
+      </div>
+      <div class="tl-line-wrap">
+        <div class="tl-dot"></div>
+        <div class="tl-vline"></div>
+      </div>
+      <div class="tl-card-wrap">
+        <div class="tl-card">
+          <div class="tl-card-title">USD/JPY — Lihat Reaksi Tokyo</div>
+          <p class="tl-card-desc">
+            JPY adalah satu-satunya pairs mayor yang sudah aktif bergerak di sesi Asia.
+            Level S&amp;R D1-nya sering <strong>sudah "diuji" lebih dulu sebelum London buka</strong> —
+            jika harga menyentuh zona Anda di sesi Asia, Anda datang ke overlap dengan skenario yang jauh lebih matang.
+          </p>
+          <div class="pairs">
+            <div class="pair-chip c-jpy"><span class="chip-dot"></span>USD/JPY</div>
+          </div>
+          <div class="insight">
+            <span class="insight-icon">💡</span>
+            <span>Data ekonomi Jepang sering rilis jam 07:00–08:00 WIB — bisa menggerakkan JPY secara signifikan.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 15:00 London prep -->
+    <div class="tl-item v-ldn">
+      <div class="tl-time">
+        <div class="time-val">15:00<br>16:00</div>
+        <div class="time-label">London Buka</div>
+      </div>
+      <div class="tl-line-wrap">
+        <div class="tl-dot"></div>
+        <div class="tl-vline"></div>
+      </div>
+      <div class="tl-card-wrap">
+        <div class="tl-card">
+          <div class="tl-card-title">Baca Konteks — Siapkan Rencana</div>
+          <p class="tl-card-desc">
+            Volume mulai naik signifikan. Ini bukan waktu entry — ini waktu <strong>menggambar neckline,
+            menandai level kunci, dan menentukan skenario</strong> mana yang lebih mungkin malam ini:
+            reversal atau breakout.
+          </p>
+          <div class="pairs">
+            <div class="pair-chip c-eur"><span class="chip-dot"></span>EUR/USD</div>
+            <div class="pair-chip c-gbp"><span class="chip-dot"></span>GBP/USD</div>
+            <div class="pair-chip c-cad"><span class="chip-dot"></span>USD/CAD</div>
+          </div>
+          <div class="insight">
+            <span class="insight-icon">💡</span>
+            <span>USD/CAD — cek arah minyak hari ini sebagai konteks tambahan sebelum membaca chart-nya.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 19:00 Peak -->
+    <div class="tl-item v-peak">
+      <div class="tl-time">
+        <div class="time-val">19:00<br>22:00</div>
+        <div class="time-label">⚡ PUNCAK</div>
+      </div>
+      <div class="tl-line-wrap">
+        <div class="tl-dot"></div>
+      </div>
+      <div class="tl-card-wrap">
+        <div class="tl-card">
+          <div class="tl-card-title">Eksekusi — Hanya Yang Sudah Siap</div>
+          <p class="tl-card-desc">
+            Duduk serius hanya untuk pairs yang sudah mendekati zona S&amp;R dari monitoring sebelumnya.
+            <strong>Jangan membaca dari nol di jam ini</strong> — skenario harus sudah ada di kepala Anda sejak sore.
+          </p>
+          <div class="pairs">
+            <div class="pair-chip c-eur"><span class="chip-dot"></span>EUR/USD</div>
+            <div class="pair-chip c-gbp"><span class="chip-dot"></span>GBP/USD</div>
+            <div class="pair-chip c-aud"><span class="chip-dot"></span>AUD/USD</div>
+            <div class="pair-chip c-jpy"><span class="chip-dot"></span>USD/JPY</div>
+            <div class="pair-chip c-cad"><span class="chip-dot"></span>USD/CAD</div>
+          </div>
+          <div class="insight" style="border-color:rgba(255,107,43,0.25);background:rgba(255,107,43,0.06);">
+            <span class="insight-icon">🔥</span>
+            <span style="color:#c8956a;"><strong style="color:var(--peak)">Golden Window London ↔ NY.</strong> Breakout lebih valid, reversal lebih kuat. Tunggu candle M30 CLOSE sebelum entry.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- PAIRS SUMMARY CARDS -->
+  <div class="section-label">Profil Singkat Per Pairs</div>
+
+  <div class="summary-grid">
+
+    <div class="sum-card sc-aud">
+      <div class="sum-pair">AUD/USD</div>
+      <p class="sum-why">Struktur bersih, spread sempit. Mulai terbentuk sejak Sydney — <strong>waktu persiapan paling panjang</strong>. Sensitif terhadap data China dan harga komoditas.</p>
+      <div class="sum-tag">Pantau: 05:00 WIB</div>
+    </div>
+
+    <div class="sum-card sc-jpy">
+      <div class="sum-pair">USD/JPY</div>
+      <p class="sum-why">Satu-satunya yang aktif di sesi Asia. S&amp;R D1 sering sudah diuji sebelum overlap — <strong>skenario lebih matang</strong> saat London dan NY buka.</p>
+      <div class="sum-tag">Pantau: 07:00 WIB</div>
+    </div>
+
+    <div class="sum-card sc-cad">
+      <div class="sum-pair">USD/CAD</div>
+      <p class="sum-why">Berkorelasi kuat dengan harga minyak. <strong>Cek arah minyak</strong> sebelum membaca chartnya. Aktif saat data ekonomi Kanada dan AS rilis bersamaan.</p>
+      <div class="sum-tag">Pantau: 15:00 WIB</div>
+    </div>
+
+    <div class="sum-card sc-eur">
+      <div class="sum-pair">EUR/USD</div>
+      <p class="sum-why">Pilihan utama. Spread tersempit, volume terbesar, struktur teknikal paling bersih. Level S&amp;R paling "dihormati" oleh institusi.</p>
+      <div class="sum-tag">Prioritas Utama</div>
+    </div>
+
+    <div class="sum-card sc-gbp">
+      <div class="sum-pair">GBP/USD</div>
+      <p class="sum-why">Volatilitas lebih tinggi dari EUR/USD — pergerakan lebih besar tapi lebih "liar". Cocok jika S&amp;R sudah sangat jelas dan <strong>SL cukup longgar</strong>.</p>
+      <div class="sum-tag">Prioritas Kedua</div>
+    </div>
+
+  </div>
+
+  <!-- KORELASI WARNING -->
+  <div class="warning-box">
+    <span class="warning-icon">⚠️</span>
+    <div class="warning-body">
+      <div class="warning-title">Perhatian Korelasi: EUR/USD vs USD/CHF</div>
+      <p class="warning-text">
+        USD/CHF memiliki <strong>korelasi negatif sangat kuat</strong> dengan EUR/USD.
+        Jika Anda membuka posisi EUR/USD dan USD/CHF di arah berlawanan secara bersamaan,
+        itu sama saja dengan <strong>menggandakan eksposur ke pergerakan yang sama</strong> —
+        bukan diversifikasi, melainkan risiko ganda yang sering tidak disadari.
+        Pilih salah satu saja di hari yang sama.
+      </p>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="foot">
+    <span class="mk mk-aud">AUD/USD</span> Pantau 05:00 &nbsp;·&nbsp;
+    <span class="mk mk-jpy">USD/JPY</span> Pantau 07:00 &nbsp;·&nbsp;
+    <span class="mk mk-eur">EUR/USD</span> + <span class="mk mk-gbp">GBP/USD</span> + <span class="mk mk-cad">USD/CAD</span> Pantau 15:00
+    &nbsp;·&nbsp; <span class="mk mk-peak">⚡ 19:00–22:00</span> Eksekusi hanya yang sudah siap
+  </div>
+
+</div>
+<script>
+  function notifyHeight() {
+    var h = Math.max(
+      document.body.scrollHeight,
+      document.body.offsetHeight,
+      document.documentElement.scrollHeight,
+      document.documentElement.offsetHeight
+    );
+    document.documentElement.style.minHeight = h + 'px';
+    document.body.style.minHeight = h + 'px';
+    window.parent.postMessage({ height: h }, '*');
+  }
+  notifyHeight();
+  window.addEventListener('load', notifyHeight);
+  setTimeout(notifyHeight, 500);
+  setTimeout(notifyHeight, 1500);
+</script>
+</body>
+</html>
